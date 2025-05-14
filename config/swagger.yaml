@@ -1,0 +1,698 @@
+openapi: 3.0.0
+info:
+  title: Examination System API
+  description: API documentation for Admin and Member system with Exams and Courses
+  version: 1.0.0
+servers:
+  - url: "http://localhost:8088"
+    description: "Local development server"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: Authentication and user login
+  - name: Courses
+    description: Manage courses and exams
+paths:
+  /api/auth/login:
+    post:
+      summary: Login as Admin or Member
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: admin@example.com
+                password:
+                  type: string
+                  example: password123
+      responses:
+        200:
+          description: Login successful
+        401:
+          description: Invalid credentials
+  /api/auth/register:
+    post:
+      summary: Register a new Admin
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - name
+                - password
+                - gender
+                - phone
+              properties:
+                email:
+                  type: string
+                  example: member@example.com
+                name:
+                  type: string
+                  example: John Doe
+                password:
+                  type: string
+                  example: password123
+                gender:
+                  type: string
+                  enum:
+                    - male
+                    - female
+                    - other
+                  example: "male"
+                phone:
+                  type: string
+                  example: "+1234567890"
+                secret:
+                  type: string
+                  example: "anySecretKey"
+      responses:
+        201:
+          description: Registration successful
+        400:
+          description: Validation error
+  /api/auth/create-member:
+    post:
+      summary: Register a new Member by Admin
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - name
+                - password
+                - gender
+                - phone
+              properties:
+                email:
+                  type: string
+                  example: "member@example.com"
+                name:
+                  type: string
+                  example: "John Doe"
+                password:
+                  type: string
+                  example: "password123"
+                gender:
+                  type: string
+                  enum:
+                    - male
+                    - female
+                    - other
+                  example: "male"
+                phone:
+                  type: string
+                  example: "+1234567890"
+      responses:
+        201:
+          description: Member registered successfully
+        400:
+          description: Validation error
+  /api/courses:
+    post:
+      summary: Create a new course
+      tags:
+        - Courses
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+              properties:
+                name:
+                  type: string
+                  example: "Introduction to Programming"
+                description:
+                  type: string
+                  example: "A beginner-friendly course on programming fundamentals."
+      responses:
+        201:
+          description: Course created successfully
+        400:
+          description: Validation error
+  /api/courses/assign-course/{memberId}:
+    post:
+      summary: Assign a course to a member
+      tags:
+        - Courses
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: memberId
+          required: true
+          schema:
+            type: string
+          description: The ID of the member to assign the course to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - courseId
+              properties:
+                courseId:
+                  type: string
+                  example: "68244bfc802fc02b6ec74928"
+      responses:
+        200:
+          description: Course assigned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Course assigned successfully"
+                      memberId:
+                        type: string
+                        example: "6824448d797d85622fc0cd5f"
+                      courseId:
+                        type: string
+                        example: "68244bfc802fc02b6ec74928"
+                  data:
+                    type: string
+                    example: "Course assigned successfully"
+        400:
+          description: Validation error or course already assigned
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden – only admins can assign courses
+        404:
+          description: Member or Course not found
+  /api/courses/member/my-courses:
+    get:
+      summary: Get courses assigned to the logged-in member
+      tags:
+        - Courses
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Courses fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "68244bfc802fc02b6ec74928"
+                        name:
+                          type: string
+                          example: "Machine-Learning"
+                        description:
+                          type: string
+                          example: "AI"
+                        createdBy:
+                          type: string
+                          example: "68243422b9ea5528a0eec04e"
+                        isDeleted:
+                          type: boolean
+                          example: false
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2025-05-14T07:53:32.215Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2025-05-14T07:53:32.215Z"
+                        __v:
+                          type: integer
+                          example: 0
+                  data:
+                    type: string
+                    example: "My courses fetched successfully"
+        401:
+          description: Unauthorized – JWT token missing or invalid
+        403:
+          description: Forbidden – only members can access their courses
+  /api/member/my-exams:
+    get:
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      summary: Get all exams assigned to the logged-in member
+      responses:
+        200:
+          description: My exams fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 682457841e1400bb36ecda7b
+                        course:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                              example: 68244bfc802fc02b6ec74928
+                            name:
+                              type: string
+                              example: Machine-Learning
+                            description:
+                              type: string
+                              example: AI
+                        name:
+                          type: string
+                          example: Final Exam
+                        totalMarks:
+                          type: integer
+                          example: 100
+                        passMarks:
+                          type: integer
+                          example: 40
+                        examTime:
+                          type: integer
+                          description: Duration in minutes
+                          example: 60
+                        questions:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              _id:
+                                type: string
+                                example: 682457841e1400bb36ecda7c
+                              questionText:
+                                type: string
+                                example: What is the capital of France?
+                              marks:
+                                type: integer
+                                example: 5
+                              options:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    _id:
+                                      type: string
+                                      example: 682457841e1400bb36ecda7d
+                                    optionText:
+                                      type: string
+                                      example: Paris
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: 2025-05-14T08:42:44.231Z
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: 2025-05-14T08:42:44.231Z
+                        __v:
+                          type: integer
+                          example: 0
+                  data:
+                    type: string
+                    example: My exams fetched successfully
+  /api/member/examinations/{examId}/attempt:
+    post:
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      summary: Attempt an exam by submitting selected option indices
+      parameters:
+        - name: examId
+          in: path
+          required: true
+          description: ID of the exam to attempt
+          schema:
+            type: string
+            example: 682457841e1400bb36ecda7b
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  description: Array of selected option indices for each question
+                  items:
+                    type: integer
+                    example: 0
+              required:
+                - answers
+              example:
+                answers: [0, 1]
+      responses:
+        200:
+          description: Exam attempted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: object
+                    properties:
+                      exam:
+                        type: string
+                        example: Final Exam
+                      score:
+                        type: integer
+                        example: 100
+                      passed:
+                        type: boolean
+                        example: true
+                  data:
+                    type: string
+                    example: Exam attempted successfully
+  /api/courses/{courseId}/examinations:
+    post:
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      summary: Create a new exam for a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: The ID of the course to which the exam will be added
+          schema:
+            type: string
+            example: 68244bfc802fc02b6ec74928
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - totalMarks
+                - passMarks
+                - examTime
+                - questions
+              properties:
+                name:
+                  type: string
+                  example: World Geography Quiz
+                totalMarks:
+                  type: integer
+                  example: 90
+                passMarks:
+                  type: integer
+                  example: 36
+                examTime:
+                  type: integer
+                  description: Duration of the exam in minutes
+                  example: 50
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - questionText
+                      - marks
+                      - options
+                    properties:
+                      questionText:
+                        type: string
+                        example: Which is the largest continent by land area?
+                      marks:
+                        type: integer
+                        example: 5
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - optionText
+                            - isCorrect
+                          properties:
+                            optionText:
+                              type: string
+                              example: Africa
+                            isCorrect:
+                              type: boolean
+                              example: false
+      responses:
+        200:
+          description: Exam created successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Examination created successfully
+  /api/member/my-exams:
+    get:
+      tags:
+        - Exams
+      summary: Get all exams assigned to the logged-in member
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of exams assigned to the member
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Exam'
+                  data:
+                    type: string
+                    example: My exams fetched successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Member or exams not found
+components:
+  schemas:
+    Course:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 68244bfc802fc02b6ec74928
+        name:
+          type: string
+          example: Machine-Learning
+        description:
+          type: string
+          example: AI
+    Option:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 682457841e1400bb36ecda7d
+        optionText:
+          type: string
+          example: Paris
+    Question:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 682457841e1400bb36ecda7c
+        questionText:
+          type: string
+          example: What is the capital of France?
+        marks:
+          type: integer
+          example: 50
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+    Exam:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 682457841e1400bb36ecda7b
+        name:
+          type: string
+          example: Final Exam
+        totalMarks:
+          type: integer
+          example: 100
+        passMarks:
+          type: integer
+          example: 40
+        examTime:
+          type: integer
+          example: 60
+        course:
+          $ref: '#/components/schemas/Course'
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+        createdAt:
+          type: string
+          format: date-time
+          example: 2025-05-14T08:42:44.231Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2025-05-14T08:42:44.231Z
+  /api/member/examinations/{examId}/attempt:
+  post:
+    tags:
+      - Exams
+    summary: Attempt a specific exam
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: examId
+        in: path
+        required: true
+        description: The ID of the exam to attempt
+        schema:
+          type: string
+          example: 682457841e1400bb36ecda7b
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - answers
+            properties:
+              answers:
+                type: array
+                description: List of selected option indexes per question
+                example: [0, 1]
+                items:
+                  type: integer
+    responses:
+      '200':
+        description: Exam attempted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 200
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: object
+                  properties:
+                    exam:
+                      type: string
+                      example: Final Exam
+                    score:
+                      type: integer
+                      example: 100
+                    passed:
+                      type: boolean
+                      example: true
+                data:
+                  type: string
+                  example: Exam attempted successfully
+      '400':
+        description: Invalid request or missing answers
+      '401':
+        description: Unauthorized
+      '404':
+        description: Exam not found or not accessible to the user  
+  /api/admin/courses:
+    get:
+      tags:
+        - Courses
+      security:
+        - bearerAuth: []
+      summary: Get all Courses
+      responses:
+        '200':
