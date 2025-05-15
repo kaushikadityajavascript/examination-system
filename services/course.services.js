@@ -93,7 +93,7 @@ const myCourses = async (req) => {
 
 const getAllCourses = async (req, res) => {
   const courses = await Course.find({ isDeleted: false }).populate(
-    "name email"
+    "name description"
   );
   if (!courses || courses.length === 0) {
     throw new CustomError(StatusCodes.NOT_FOUND, "No courses found");

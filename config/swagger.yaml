@@ -12,8 +12,8 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-security:
-  - bearerAuth: []
+# security:
+#   - bearerAuth: []
 tags:
   - name: Auth
     description: Authentication and user login
@@ -51,8 +51,8 @@ paths:
       summary: Register a new Admin
       tags:
         - Auth
-      security:
-        - bearerAuth: []
+      # security:
+      #   - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -687,7 +687,7 @@ components:
         description: Unauthorized
       '404':
         description: Exam not found or not accessible to the user  
-  /api/admin/courses:
+  /api/courses/admin/courses:
     get:
       tags:
         - Courses

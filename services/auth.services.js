@@ -9,8 +9,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 const jwtSecret = process.env.JWT_SECRET;
 
+// Admin user registration
 const add = async (body, req) => {
-  const { name, gender, email, phone, password, secret } = body;
+  const { email, password, secret } = body;
   if (secret !== process.env.ADMIN_SECRET) {
     throw new CustomError(
       StatusCodes.UNAUTHORIZED,
