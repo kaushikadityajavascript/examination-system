@@ -42,4 +42,22 @@ const examAttemptController = catchAsync(async (req, res) => {
   }
 });
 
-module.exports = { addController, myExamsController, examAttemptController };
+const viewResultsController = catchAsync(async (req, res) => {
+  const viewResults = await SERVICE.viewResults(req);
+  if (viewResults) {
+    return setSuccessResponse(
+      res,
+      StatusCodes.OK,
+      true,
+      "Exam results fetched successfully",
+      viewResults
+    );
+  }
+});
+
+module.exports = {
+  addController,
+  myExamsController,
+  examAttemptController,
+  viewResultsController,
+};

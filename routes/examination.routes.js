@@ -25,4 +25,11 @@ router.post(
   examinationController.examAttemptController
 );
 
+router.get(
+  "/exams/results",
+  authMiddleware,
+  checkRoles(["admin", "member"]),
+  examinationController.viewResultsController
+);
+
 module.exports = router;

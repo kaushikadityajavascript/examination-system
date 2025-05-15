@@ -686,13 +686,60 @@ components:
       '401':
         description: Unauthorized
       '404':
-        description: Exam not found or not accessible to the user  
-  /api/courses/admin/courses:
+        description: Exam not found or not accessible to the user
+  /api/exams/results:
     get:
       tags:
-        - Courses
+        - Exams
+      summary: View Exam Results
+      description: >
+        Allows Admins to view all exam results, and Members to view their own results.
+      operationId: viewExamResults
       security:
         - bearerAuth: []
-      summary: Get all Courses
       responses:
-        '200':
+        "200":
+          description: Successfully retrieved exam results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        memberName:
+                          type: string
+                          example: John Doe
+                        memberEmail:
+                          type: string
+                          example: john@example.com
+                        examName:
+                          type: string
+                          example: JavaScript Basics
+                        courseName:
+                          type: string
+                          example: Web Development
+                        score:
+                          type: number
+                          example: 18
+                        passed:
+                          type: boolean
+                          example: true
+                        attemptedAt:
+                          type: string
+                          format: date-time
+                          example: 2025-05-15T08:15:30.123Z
+        "401":
+          description: Unauthorized - Token missing or invalid
+        "403":
+          description: Forbidden - User not allowed
+        "500":
+          description: Internal server error
+  
+  

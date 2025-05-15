@@ -193,8 +193,61 @@ const attemptExam = async (body, req) => {
   };
 };
 
+const viewResults = async (req) => {
+  const userId = req.userId;
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new CustomError(StatusCodes.UNAUTHORIZED, "User not found");
+  }
+
+  let attempts;
+
+  if (user.role === "admin") {
+    // Admin can view all exam attempts
+    attempts = await ExamAttempt.find({})
+      .populate("member", "name email")
+      .populate("exam", "name course")
+      .populate({
+        path: "exam",
+        populate: {
+          path: "course",
+          model: "Course",
+          select: "name",
+        },
+      });
+  } else if (user.role === "member") {
+    // Members can only see their own results
+    attempts = await ExamAttempt.find({ member: userId })
+      .populate("exam", "name course")
+      .populate({
+        path: "exam",
+        populate: {
+          path: "course",
+          model: "Course",
+          select: "name",
+        },
+      });
+  } else {
+    throw new CustomError(StatusCodes.FORBIDDEN, "Unauthorized access");
+  }
+
+  const results = attempts.map((attempt) => ({
+    memberName: attempt.member?.name,
+    memberEmail: attempt.member?.email,
+    examName: attempt.exam?.name,
+    courseName: attempt.exam?.course?.name,
+    score: attempt.score,
+    passed: attempt.passed,
+    attemptedAt: attempt.createdAt,
+  }));
+
+  return results;
+};
+
 module.exports = {
   add,
   myExams,
   attemptExam,
+  viewResults,
 };
